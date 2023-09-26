@@ -30,7 +30,7 @@ class TestRoutes(TestCase):
         # имя пути и позиционные аргументы для функции reverse().
         urls = (
             ('news:home', None),
-            ('news:detail', (self.news.id,)),
+            ('news:detail', (self.news.id,)),  # type: ignore
             ('users:login', None),
             ('users:logout', None),
             ('users:signup', None),
@@ -38,8 +38,10 @@ class TestRoutes(TestCase):
 
         # При обращении к страницам редактирования и удаления комментария
         users_statuses = (
-            (self.author, HTTPStatus.OK),  # автор комментария должен получить ответ OK,
-            (self.reader, HTTPStatus.NOT_FOUND),  # читатель должен получить ответ NOT_FOUND.
+            # автор комментария должен получить ответ OK.
+            (self.author, HTTPStatus.OK),
+            # читатель должен получить ответ NOT_FOUND.
+            (self.reader, HTTPStatus.NOT_FOUND),
 
         )
 
@@ -60,7 +62,10 @@ class TestRoutes(TestCase):
             # перебираем имена тестируемых страниц:
             for name in ('news:edit', 'news:delete'):
                 with self.subTest(user=user, name=name):
-                    url = reverse(name, args=(self.comment.id,))
+                    url = reverse(
+                        name,
+                        args=(self.comment.id,)  # type: ignore
+                    )  # type: ignore
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
@@ -71,15 +76,16 @@ class TestRoutes(TestCase):
         # В цикле перебираем имена страниц, с которых ожидаем редирект:
         for name in ('news:edit', 'news:delete'):
             with self.subTest(name=name):
-                # Получаем адрес страницы редактирования или удаления комментария:
-                url = reverse(name, args=(self.comment.id,))
-                # print('адрес страницы редактирования или удаления комментария: ', url)
+                # Получаем адрес страницы редактирования или удаления коммента:
+                url = reverse(name, args=(self.comment.id,))  # type: ignore
+                # print('адрес страницы ред-я или удаления коммента: ', url)
                 # Получаем ожидаемый адрес страницы логина,
                 # на который будет перенаправлен пользователь.
                 # Учитываем, что в адресе будет параметр next, в к-м передаётся
                 # адрес страницы, с которой пользователь был переадресован.
                 redirect_url = f'{login_url}?next={url}'
-                # print('ожидаемый адрес страницы логина, на который будет перенаправлен пользователь: ', redirect_url)
+                # print('ожидаемый адрес страницы логина, на к-й будет
+                # перенаправлен пользователь: ', redirect_url)
                 response = self.client.get(url)
                 # Проверяем, что редирект приведёт именно на указанную ссылку.
                 self.assertRedirects(response, redirect_url)
