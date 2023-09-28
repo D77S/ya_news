@@ -115,6 +115,7 @@ class TestCommentEditDelete(TestCase):
             args=(cls.comment.id,)  # type: ignore
         )  # type: ignore
         # Формируем данные для POST-запроса по обновлению комментария.
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         cls.form_data = {'text': cls.NEW_COMMENT_TEXT}
 
     def test_author_can_delete_comment(self):
@@ -147,12 +148,15 @@ class TestCommentEditDelete(TestCase):
 
     def test_author_can_edit_comment(self):
         # Выполняем запрос на редактирование от имени автора комментария.
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         response = self.author_client.post(self.edit_url, data=self.form_data)
         # Проверяем, что сработал редирект.
         self.assertRedirects(response, self.url_to_comments)
         # Обновляем объект комментария.
         self.comment.refresh_from_db()
         # Проверяем, что текст комментария соответствует обновленному.
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        self.assertEqual(self.comment.text, self.NEW_COMMENT_TEXT)
 
     def test_user_cant_edit_comment_of_another_user(self):
         # Выполняем запрос на редактирование от имени другого пользователя.
