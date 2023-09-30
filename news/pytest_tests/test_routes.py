@@ -18,6 +18,9 @@ import pytest
 def test_pages_availability_for_anonim(client, name, args) -> None:
     '''
     Проверяет, что анонимусу доступно:
+    - логин,
+    - логаут,
+    - рега,
     - главная,
     - страниц отдельной новости.'''
     url = reverse(name, args=args)
