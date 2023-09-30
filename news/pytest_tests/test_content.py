@@ -71,4 +71,3 @@ def test_client_has_form(id_for_args, parametrized_client, expected_status):
     url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
     response = parametrized_client.get(url_of_novost_to_comment_to)
     assert ('form' in response.context) is expected_status
-
