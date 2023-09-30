@@ -35,11 +35,11 @@ def test_main_is_that_needs_to_be(client):
            and (sorted_dates_from_context == dates_from_context))
 
 
-def test_comments_order(author, author_client, novost):
+def test_comments_order(author, author_client, novost, id_for_args):
     '''
     Проверяет, что каменты к новости
     выводятся сортированными как надо по дате.'''
-    url_of_novost_to_comment_to = reverse('news:detail', args=(novost.id,))
+    url_of_novost_to_comment_to = reverse('news:detail', args=(id_for_args))
     now = timezone.now()
     for index in range(2):
         comment = Comment.objects.create(
