@@ -32,3 +32,22 @@ def test_main_not_more_than_need(client):
     sorted_dates_from_context = sorted(dates_from_context, reverse=True)
     assert ((len(object_list) == NEWS_COUNT_ON_HOME_PAGE)
            and (sorted_dates_from_context == dates_from_context))
+
+def test_comments_order():
+    '''
+    Проверяет, что каменты к новости
+    выводятся сортированными как надо по дате.'''
+
+    # создать новость
+    # создать к ней два камента
+    # запросить клиента
+    # из него запросить объект новости
+    # к нему запросить каменты
+    # проверить их сортировку
+    #
+    # примерно так:
+    # response = client.get(detail_url)
+    # assertIn('news', response.context)
+    # news = response.context['news']
+    # all_comments = news.comment_set.all()
+    # assertLess(all_comments[0].created, all_comments[1].created)
