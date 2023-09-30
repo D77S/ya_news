@@ -56,20 +56,19 @@ def test_comments_order(author, author_client, novost, id_for_args):
 
 
 @pytest.mark.django_db
-def test_anonymous_client_has_no_form(id_for_args, client):
+@pytest.mark.parametrize(
+    'parametrized_client, expected_status',
+    (
+        (pytest.lazy_fixture('client'), False),  # type: ignore
+        (pytest.lazy_fixture('admin_client'), True)  # type: ignore
+    ),
+)
+def test_client_has_form(id_for_args, parametrized_client, expected_status):
     '''
-    Проверяет, что анонимусу недоступна
-    форма для отправки комментария'''
+    Проверяет, что форма для отправки комментария:
+    - анонимусу недоступна,
+    - а логированному - доступна.'''
     url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
-    response = client.get(url_of_novost_to_comment_to)
-    assert 'form' not in response.context
+    response = parametrized_client.get(url_of_novost_to_comment_to)
+    assert ('form' in response.context) is expected_status
 
-
-@pytest.mark.django_db
-def test_authorized_client_has_form(id_for_args, admin_client):
-    '''
-    Проверяет, что авторизованному юзеру
-    доступна форма для отправки комментария.'''
-    url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
-    response = admin_client.get(url_of_novost_to_comment_to)
-    assert 'form' in response.context
