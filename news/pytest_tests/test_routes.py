@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from pytest_django.asserts import assertRedirects
 from django.urls import reverse
 import pytest
 
@@ -60,3 +61,20 @@ def test_comment_change_pages_for_author(
     url = reverse(name, args=(comment.id,))
     response = parametrized_client.get(url)
     assert response.status_code == expected_status
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+        'name',
+        ('news:edit', 'news:delete'),
+)
+def test_redirects(client, name, comment):
+    '''
+    Проверяет, что если анонимус хочет
+    на страницу редактирования или удаления камента,
+    то его перенаправляет на логин.'''
+    login_url = reverse('users:login')
+    url = reverse(name, args=(comment.id,))
+    expected_url = f'{login_url}?next={url}'
+    response = client.get(url)
+    assertRedirects(response, expected_url)
