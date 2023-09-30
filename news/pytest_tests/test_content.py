@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime, timedelta
 
 from django.urls import reverse
 
@@ -10,13 +11,24 @@ from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 def test_main_not_more_than_need(client):
     '''
     Проверяет, что на главной странице
-    отображается новостей не более штук, чем сколько надо.'''
+    отображаются новости:
+    - не более штук, чем сколько надо,
+    - сортированы по дате так, как надо.'''
     url_main = reverse('news:home', args=None)
-    main_page_draft_news_list = []
-    for index in range(NEWS_COUNT_ON_HOME_PAGE + 2):
-        news = News(title=f'Новость {index}', text='Просто текст.')
-        main_page_draft_news_list.append(news)
+
+    today = datetime.today()
+    main_page_draft_news_list = [
+        News(
+            title=f'Новость {index}',
+            text='Просто текст.',
+            date=today - timedelta(days=index)
+        )
+        for index in range(NEWS_COUNT_ON_HOME_PAGE + 2)
+    ]
     News.objects.bulk_create(main_page_draft_news_list)
     response = client.get(url_main)
     object_list = response.context['object_list']
-    assert len(object_list) == NEWS_COUNT_ON_HOME_PAGE
+    dates_from_context = [news.date for news in object_list]
+    sorted_dates_from_context = sorted(dates_from_context, reverse=True)
+    assert ((len(object_list) == NEWS_COUNT_ON_HOME_PAGE)
+           and (sorted_dates_from_context == dates_from_context))
