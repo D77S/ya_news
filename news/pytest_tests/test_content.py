@@ -39,7 +39,7 @@ def test_comments_order(author, author_client, novost, id_for_args):
     '''
     Проверяет, что каменты к новости
     выводятся сортированными как надо по дате.'''
-    url_of_novost_to_comment_to = reverse('news:detail', args=(id_for_args))
+    url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
     now = timezone.now()
     for index in range(2):
         comment = Comment.objects.create(
@@ -53,3 +53,23 @@ def test_comments_order(author, author_client, novost, id_for_args):
     news = response.context['news']
     all_comments = news.comment_set.all()
     assert all_comments[0].created < all_comments[1].created
+
+
+@pytest.mark.django_db
+def test_anonymous_client_has_no_form(id_for_args, client):
+    '''
+    Проверяет, что анонимусу недоступна
+    форма для отправки комментария'''
+    url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
+    response = client.get(url_of_novost_to_comment_to)
+    assert 'form' not in response.context
+
+
+@pytest.mark.django_db
+def test_authorized_client_has_form(id_for_args, admin_client):
+    '''
+    Проверяет, что авторизованному юзеру
+    доступна форма для отправки комментария.'''
+    url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
+    response = admin_client.get(url_of_novost_to_comment_to)
+    assert 'form' in response.context
