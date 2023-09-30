@@ -2,13 +2,14 @@ import pytest
 from datetime import datetime, timedelta
 
 from django.urls import reverse
+from django.utils import timezone
 
-from news.models import News
+from news.models import Comment, News
 from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-def test_main_not_more_than_need(client):
+def test_main_is_that_needs_to_be(client):
     '''
     Проверяет, что на главной странице
     отображаются новости:
@@ -33,21 +34,22 @@ def test_main_not_more_than_need(client):
     assert ((len(object_list) == NEWS_COUNT_ON_HOME_PAGE)
            and (sorted_dates_from_context == dates_from_context))
 
-def test_comments_order():
+
+def test_comments_order(author, author_client, novost):
     '''
     Проверяет, что каменты к новости
     выводятся сортированными как надо по дате.'''
-
-    # создать новость
-    # создать к ней два камента
-    # запросить клиента
-    # из него запросить объект новости
-    # к нему запросить каменты
-    # проверить их сортировку
-    #
-    # примерно так:
-    # response = client.get(detail_url)
-    # assertIn('news', response.context)
-    # news = response.context['news']
-    # all_comments = news.comment_set.all()
-    # assertLess(all_comments[0].created, all_comments[1].created)
+    url_of_novost_to_comment_to = reverse('news:detail', args=(novost.id,))
+    now = timezone.now()
+    for index in range(2):
+        comment = Comment.objects.create(
+            news=novost,
+            author=author,
+            text=f'Tекст {index}'
+        )
+        comment.created = now + timedelta(days=index)
+        comment.save()
+    response = author_client.get(url_of_novost_to_comment_to)
+    news = response.context['news']
+    all_comments = news.comment_set.all()
+    assert all_comments[0].created < all_comments[1].created
