@@ -56,7 +56,7 @@ def test_user_cant_use_bad_words(id_for_args, admin_client):
         (pytest.lazy_fixture('client'), False)  # type: ignore
     ),
 )
-def test_author_can_edit_note(
+def test_somebody_can_edit_comment(
     comment,
     parametrized_client,
     expected_status
@@ -67,9 +67,39 @@ def test_author_can_edit_note(
     - запрещено, если это пытается делать не его автор.'''
     NEW_COMMENT_TEXT = "Новое бла-бла-бла."
     url_of_coment_to_edit_to = reverse('news:edit', args=(comment.id,))
-    url_of_coment_to_edit_after = reverse('news:detail', args=(comment.id,)) + '#comments'
+    url_of_coment_to_edit_after = reverse(
+        'news:detail',
+        args=(comment.id,)
+    ) + '#comments'
     form_data = {'text': NEW_COMMENT_TEXT}
     response = parametrized_client.post(url_of_coment_to_edit_to, form_data)
     assert (response.url == url_of_coment_to_edit_after) is expected_status
     comment.refresh_from_db()
     assert (comment.text == NEW_COMMENT_TEXT) is expected_status
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'parametrized_client, expected_status',
+    (
+        (pytest.lazy_fixture('author_client'), True),  # type: ignore
+        (pytest.lazy_fixture('client'), False)  # type: ignore
+    ),
+)
+def test_somebody_can_delete_comment(
+    id_for_args,
+    comment,
+    parametrized_client,
+    expected_status
+):
+    '''
+    Проверяет, что удаление комментария:
+    - разрешено, если это пытается делать его автор,
+    - запрещено, если это пытается делать не его автор.'''
+    url_of_coment_to_delete_to = reverse('news:delete', args=(comment.id,))
+    url_of_coment_to_delete_after = reverse(
+        'news:detail',
+        args=id_for_args
+    ) + '#comments'
+    response = parametrized_client.post(url_of_coment_to_delete_to)
+    assert (response.url == url_of_coment_to_delete_after) is expected_status
