@@ -12,9 +12,7 @@ from django.urls import reverse
         ('users:logout', None),
         ('users:signup', None),
         ('news:home', None),
-        ('news:detail', pytest.lazy_fixture(
-           'id_for_args'
-        )),  # type: ignore
+        ('news:detail', pytest.lazy_fixture('id_for_args')),  # type: ignore
     ),
 )
 def test_pages_availability_for_anonim(client, name, args) -> None:
