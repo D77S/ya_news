@@ -75,6 +75,6 @@ def test_redirects(client, name, comment):
     то его перенаправляет на логин.'''
     login_url = reverse('users:login')
     url = reverse(name, args=(comment.id,))
-    expected_url = f'{login_url}?next={url}'
+    redirect_url = f'{login_url}?next={url}'
     response = client.get(url)
-    assertRedirects(response, expected_url)
+    assertRedirects(response, redirect_url)
