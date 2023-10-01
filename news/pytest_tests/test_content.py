@@ -14,9 +14,8 @@ def test_main_is_that_needs_to_be(client):
     Проверяет, что на главной странице
     отображаются новости:
     - не более штук, чем сколько надо,
-    - сортированы по дате так, как надо.'''
+    - сортированы по дате по reverse=True.'''
     url_main = reverse('news:home', args=None)
-
     today = datetime.today()
     main_page_draft_news_list = [
         News(
@@ -24,7 +23,7 @@ def test_main_is_that_needs_to_be(client):
             text='Просто текст.',
             date=today - timedelta(days=index)
         )
-        for index in range(NEWS_COUNT_ON_HOME_PAGE + 2)
+        for index in range(NEWS_COUNT_ON_HOME_PAGE + 2)  # На 2 больше, чем.
     ]
     News.objects.bulk_create(main_page_draft_news_list)
     response = client.get(url_main)
@@ -41,7 +40,7 @@ def test_comments_order(author, author_client, novost, id_for_args):
     выводятся сортированными как надо по дате.'''
     url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
     now = timezone.now()
-    for index in range(2):
+    for index in range(2):  # Создаем две, хватит и того.
         comment = Comment.objects.create(
             news=novost,
             author=author,
