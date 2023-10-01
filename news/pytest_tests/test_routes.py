@@ -7,16 +7,15 @@ from django.urls import reverse
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-        'name, args',
-        (
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
-            ('news:home', None),
-            ('news:detail', pytest.lazy_fixture(
-                'id_for_args'
-            )),  # type: ignore
-        ),
+    'name, args', (
+        ('users:login', None),
+        ('users:logout', None),
+        ('users:signup', None),
+        ('news:home', None),
+        ('news:detail', pytest.lazy_fixture(
+           'id_for_args'
+        )),  # type: ignore
+    ),
 )
 def test_pages_availability_for_anonim(client, name, args) -> None:
     '''
@@ -42,8 +41,8 @@ def test_pages_availability_for_anonim(client, name, args) -> None:
     ),
 )
 @pytest.mark.parametrize(
-        'name',
-        ('news:edit', 'news:delete'),
+    'name',
+    ('news:edit', 'news:delete'),
 )
 def test_comment_change_pages_for_author(
     parametrized_client,
@@ -65,8 +64,8 @@ def test_comment_change_pages_for_author(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-        'name',
-        ('news:edit', 'news:delete'),
+    'name',
+    ('news:edit', 'news:delete'),
 )
 def test_redirects(client, name, comment):
     '''
