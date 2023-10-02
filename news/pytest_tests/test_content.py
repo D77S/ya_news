@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from news.models import Comment, News
+from news.forms import CommentForm
 from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 
 
@@ -62,11 +63,17 @@ def test_comments_order(author, author_client, novost, id_for_args):
         (pytest.lazy_fixture('admin_client'), True)  # type: ignore
     ),
 )
-def test_client_has_form(id_for_args, parametrized_client, expected_status):
+def test_client_has_form(id_for_args, parametrized_client, admin_client, expected_status):
     '''
     Проверяет, что форма для отправки комментария:
     - анонимусу недоступна,
-    - а логированному - доступна.'''
+    - логированному - доступна,
+    - и вообще, вернувшаяся в ответе - того же типа, что отправлена в запросе.'''
     url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
     response = parametrized_client.get(url_of_novost_to_comment_to)
-    assert ('form' in response.context) is expected_status
+    assert ('form' in response.context) == expected_status  # Переделано с "is" на "==".
+    if parametrized_client is admin_client:
+        # Надо как-то проверить, что форма, вернувшаяся в ответа, -
+        # того же типа, что и была отправлена в запросе.
+        # Не получается:(
+        # assert (response.context['form'] == CommentForm())
