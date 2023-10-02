@@ -45,8 +45,8 @@ def test_user_cant_use_bad_words(id_for_args, admin_client):
         url_of_novelty_to_comment_to,
         data=bad_words_data
     )
-    assertFormError(response, 'form', 'text', errors=(WARNING))
     comments_count_after_request = Comment.objects.count()
+    assertFormError(response, 'form', 'text', errors=(WARNING))
     assert comments_count_after_request == comments_count_before_request
 
 

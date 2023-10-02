@@ -32,9 +32,7 @@ def test_pages_availability_for_anonim(client, name, args) -> None:
 @pytest.mark.parametrize(
     'parametrized_client, expected_status',
     (
-        (pytest.lazy_fixture(
-            'admin_client'
-        ), HTTPStatus.NOT_FOUND),  # type: ignore
+        (pytest.lazy_fixture('admin_client'), HTTPStatus.NOT_FOUND),
         (pytest.lazy_fixture('author_client'), HTTPStatus.OK)  # type: ignore
     ),
 )
