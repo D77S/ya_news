@@ -4,8 +4,8 @@ from django.urls import reverse
 from django.utils import timezone
 import pytest
 
-from news.models import Comment, News
 from news.forms import CommentForm
+from news.models import Comment, News
 from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 
 
@@ -84,22 +84,14 @@ def test_comments_order(author, author_client, novelty, id_for_args):
 def test_client_has_form(
     id_for_args,
     parametrized_client,
-    admin_client,
     expected_status
 ):
     '''
     Проверяет, что форма для отправки комментария:
     - анонимусу недоступна,
-    - логированному - доступна,
-    - форма, вернувшаяся в ответе - того же типа, что отправлена в запросе.'''
+    - логированному - доступна.'''
     url_of_novelty_to_comment_to = reverse('news:detail', args=id_for_args)
     response = parametrized_client.get(url_of_novelty_to_comment_to)
     assert ('form' in response.context) == expected_status
-    if parametrized_client is admin_client:
-        if response.context['form']['text']:
-            print('yes')
-        print(CommentForm())
-    # Надо как-то проверить, что форма, вернувшаяся в ответа, -
-    # того же типа, что и была отправлена в запросе.
-    # Не получается:(
-    # assert (response.context['form'] == CommentForm())
+    if 'form' in response.context:
+        assert type(response.context['form']) == type(CommentForm())
