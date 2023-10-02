@@ -20,30 +20,30 @@ def author_client(author, client):
 
 
 @pytest.fixture
-def novost():
+def novelty():
     '''
     Создает и возвращает объект новости.'''
-    novost = News.objects.create(
+    novelty = News.objects.create(
         title='Заголовок новости',
         text='Текстовка новости',
     )
-    return novost
+    return novelty
 
 
 @pytest.fixture
-def id_for_args(novost):
+def id_for_args(novelty):
     '''
     Возвращает от объекта новости только id.'''
-    return (novost.id,)
+    return (novelty.id,)
 
 
 @pytest.fixture
-def comment(novost, author):
+def comment(novelty, author):
     '''
     Создает и возвращает камент
     тестового автора к тестовой новости.'''
     comment = Comment.objects.create(
-        news=novost,
+        news=novelty,
         author=author,
         text='Блаблабла',
     )

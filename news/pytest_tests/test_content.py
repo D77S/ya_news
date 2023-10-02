@@ -1,8 +1,8 @@
-import pytest
 from datetime import datetime, timedelta
 
 from django.urls import reverse
 from django.utils import timezone
+import pytest
 
 from news.models import Comment, News
 #  from news.forms import CommentForm
@@ -10,12 +10,10 @@ from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-def test_main_is_that_needs_to_be(client):
+def test_main_has_propper_news_amount(client):
     '''
     Проверяет, что на главной странице
-    отображаются новости:
-    - не более штук, чем сколько надо,
-    - сортированы по дате по reverse=True.'''
+    отображается новостейне более штук, чем сколько надо.'''
     url_main = reverse('news:home', args=None)
     today = datetime.today()
     main_page_draft_news_list = [
@@ -29,27 +27,47 @@ def test_main_is_that_needs_to_be(client):
     News.objects.bulk_create(main_page_draft_news_list)
     response = client.get(url_main)
     object_list = response.context['object_list']
+    assert len(object_list) == NEWS_COUNT_ON_HOME_PAGE
+
+
+@pytest.mark.django_db
+def test_main_has_propper_news_order(client):
+    '''
+    Проверяет, что на главной странице
+    отображаются новости, сортированные по дате по reverse=True.'''
+    url_main = reverse('news:home', args=None)
+    today = datetime.today()
+    main_page_draft_news_list = [
+        News(
+            title=f'Новость {index}',
+            text='Просто текст.',
+            date=today - timedelta(days=index)
+        )
+        for index in range(NEWS_COUNT_ON_HOME_PAGE + 2)
+    ]
+    News.objects.bulk_create(main_page_draft_news_list)
+    response = client.get(url_main)
+    object_list = response.context['object_list']
     dates_from_context = [news.date for news in object_list]
     sorted_dates_from_context = sorted(dates_from_context, reverse=True)
-    assert ((len(object_list) == NEWS_COUNT_ON_HOME_PAGE)
-           and (sorted_dates_from_context == dates_from_context))
+    assert sorted_dates_from_context == dates_from_context
 
 
-def test_comments_order(author, author_client, novost, id_for_args):
+def test_comments_order(author, author_client, novelty, id_for_args):
     '''
     Проверяет, что каменты к новости
     выводятся сортированными как надо по дате.'''
-    url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
+    url_of_novelty_to_comment_to = reverse('news:detail', args=id_for_args)
     now = timezone.now()
     for index in range(2):  # Создаем две, хватит и того.
         comment = Comment.objects.create(
-            news=novost,
+            news=novelty,
             author=author,
             text=f'Tекст {index}'
         )
         comment.created = now + timedelta(days=index)
         comment.save()
-    response = author_client.get(url_of_novost_to_comment_to)
+    response = author_client.get(url_of_novelty_to_comment_to)
     news = response.context['news']
     all_comments = news.comment_set.all()
     assert all_comments[0].created < all_comments[1].created
@@ -74,8 +92,8 @@ def test_client_has_form(
     - анонимусу недоступна,
     - логированному - доступна,
     - форма, вернувшаяся в ответе - того же типа, что отправлена в запросе.'''
-    url_of_novost_to_comment_to = reverse('news:detail', args=id_for_args)
-    response = parametrized_client.get(url_of_novost_to_comment_to)
+    url_of_novelty_to_comment_to = reverse('news:detail', args=id_for_args)
+    response = parametrized_client.get(url_of_novelty_to_comment_to)
     assert ('form' in response.context) == expected_status  # Переделано с "is" на "==".
     # if parametrized_client is admin_client:
         # Надо как-то проверить, что форма, вернувшаяся в ответа, -
