@@ -96,4 +96,4 @@ def test_client_has_form(
     response = parametrized_client.get(url_of_novelty_to_comment_to)
     assert ('form' in response.context) == expected_status
     if 'form' in response.context:
-        assert type(response.context['form']) == type(CommentForm())
+        assert isinstance(response.context['form'], type(CommentForm()))
