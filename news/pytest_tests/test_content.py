@@ -89,7 +89,9 @@ def test_client_has_form(
     '''
     Проверяет, что форма для отправки комментария:
     - анонимусу недоступна,
-    - логированному - доступна.'''
+    - логированному - доступна,
+        - логированному - она именно та, что должна быть
+        из, допустим, нескольких разных.'''
     url_of_novelty_to_comment_to = reverse('news:detail', args=id_for_args)
     response = parametrized_client.get(url_of_novelty_to_comment_to)
     assert ('form' in response.context) == expected_status
